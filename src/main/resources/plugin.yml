@@ -1,0 +1,5 @@
+name: MessageRelayer
+version: ${project.version}
+main: tk.liblnd.messagerelayer.MessageRelayer
+authors: [Artuto]
+website: https://liblnd.tk

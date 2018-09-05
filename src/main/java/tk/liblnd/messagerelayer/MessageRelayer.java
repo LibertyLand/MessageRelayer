@@ -105,6 +105,9 @@ public class MessageRelayer extends JavaPlugin implements Listener
 
     private void sendMessage(JSONObject json)
     {
+        if(config.getUrl().equals("https://canary.discordapp.com/api/webhooks"))
+            return;
+
         RequestBody body = RequestBody.create(JSON, json.toString());
         Request request = new Request.Builder()
                 .url(config.getUrl())

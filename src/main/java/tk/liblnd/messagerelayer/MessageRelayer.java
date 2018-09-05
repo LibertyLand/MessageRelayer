@@ -30,7 +30,7 @@ public class MessageRelayer extends JavaPlugin implements Listener
         this.LOG = this.getLogger();
         LOG.info("Loading MessageRelayer...");
         this.config = new Config(getConfig());
-        saveDefaultConfig();
+        saveConfig();
 
         this.client = new OkHttpClient();
         this.getServer().getPluginManager().registerEvents(this, this);

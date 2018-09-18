@@ -21,7 +21,7 @@ public class MessageRelayer extends JavaPlugin implements Listener
     private OkHttpClient client;
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    private final String avatarBase = "https://crafatar.com/avatars/%s";
+    private final String avatarBase = "https://crafatar.com/avatars/%s?overlay";
     private Config config;
 
     @Override

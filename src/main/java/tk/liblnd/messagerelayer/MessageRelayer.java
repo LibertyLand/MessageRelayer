@@ -7,6 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.metadata.MetadataValue;
@@ -45,13 +46,30 @@ public class MessageRelayer extends JavaPlugin implements Listener
     }
 
     @EventHandler
-    public void onChat(AsyncChatHookEvent event)
+    public void onAsyncChatHook(AsyncChatHookEvent event)
     {
         if(!(Bukkit.getPluginManager().getPlugin("TownyChat")==null))
         {
             if(!(event.getChannel().getName().equals("general")))
                 return;
         }
+
+        Player player = event.getPlayer();
+        String message = sanitize(event.getMessage());
+
+        JSONObject obj = new JSONObject();
+        obj.put("content", message);
+        obj.put("username", player.getName());
+        obj.put("avatar_url", String.format(avatarBase, player.getUniqueId().toString()));
+
+        sendMessage(obj);
+    }
+
+    @EventHandler
+    public void onAsyncPlayerChat(AsyncPlayerChatEvent event)
+    {
+        if(!(Bukkit.getPluginManager().getPlugin("TownyChat")==null))
+            return;
 
         Player player = event.getPlayer();
         String message = sanitize(event.getMessage());

@@ -62,6 +62,10 @@
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -75,6 +79,11 @@
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>3.11.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.TownyAdvanced</groupId>
+            <artifactId>TownyChat</artifactId>
+            <version>master-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

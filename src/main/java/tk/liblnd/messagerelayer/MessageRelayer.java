@@ -1,11 +1,12 @@
 package tk.liblnd.messagerelayer;
 
+import com.palmergames.bukkit.TownyChat.events.AsyncChatHookEvent;
 import okhttp3.*;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.metadata.MetadataValue;
@@ -44,8 +45,14 @@ public class MessageRelayer extends JavaPlugin implements Listener
     }
 
     @EventHandler
-    public void onAsyncPlayerChat(AsyncPlayerChatEvent event)
+    public void onChat(AsyncChatHookEvent event)
     {
+        if(!(Bukkit.getPluginManager().getPlugin("TownyChat")==null))
+        {
+            if(!(event.getChannel().getName().equals("general")))
+                return;
+        }
+
         Player player = event.getPlayer();
         String message = sanitize(event.getMessage());
 

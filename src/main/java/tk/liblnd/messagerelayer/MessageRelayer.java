@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -105,6 +106,22 @@ public class MessageRelayer extends JavaPlugin implements Listener
             return;
 
         String toSend = sanitize("\uD83D\uDCE4 **"+player.getName()+"** has left the server!");
+
+        JSONObject obj = new JSONObject();
+        obj.put("content", toSend);
+        obj.put("username", player.getName());
+        obj.put("avatar_url", String.format(avatarBase, player.getUniqueId().toString()));
+
+        sendMessage(obj);
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event)
+    {
+        String deathMsg = event.getDeathMessage();
+        Player player = event.getEntity();
+
+        String toSend = sanitize("\uD83D\uDC80 "+deathMsg);
 
         JSONObject obj = new JSONObject();
         obj.put("content", toSend);

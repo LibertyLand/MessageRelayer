@@ -50,35 +50,27 @@ public class MessageRelayer extends JavaPlugin implements Listener
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onAsyncChatHook(AsyncChatHookEvent event)
     {
+        Player player = event.getPlayer();
         if(!(event.getChannel().getName().equals("general")))
                 return;
 
-        Player player = event.getPlayer();
-        String message = sanitize(event.getMessage());
+        String toSend = sanitize(event.getMessage());
+        String avatar = String.format(avatarBase, player.getUniqueId().toString());
 
-        JSONObject obj = new JSONObject();
-        obj.put("content", message);
-        obj.put("username", player.getName());
-        obj.put("avatar_url", String.format(avatarBase, player.getUniqueId().toString()));
-
-        sendMessage(obj);
+        sendMessage(prepareJSON(toSend, player.getName(), avatar));
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onAsyncPlayerChat(AsyncPlayerChatEvent event)
     {
+        Player player = event.getPlayer();
         if(!(Bukkit.getPluginManager().getPlugin("TownyChat")==null))
             return;
 
-        Player player = event.getPlayer();
-        String message = sanitize(event.getMessage());
+        String toSend = sanitize(event.getMessage());
+        String avatar = String.format(avatarBase, player.getUniqueId().toString());
 
-        JSONObject obj = new JSONObject();
-        obj.put("content", message);
-        obj.put("username", player.getName());
-        obj.put("avatar_url", String.format(avatarBase, player.getUniqueId().toString()));
-
-        sendMessage(obj);
+        sendMessage(prepareJSON(toSend, player.getName(), avatar));
     }
 
     @EventHandler
@@ -89,13 +81,9 @@ public class MessageRelayer extends JavaPlugin implements Listener
             return;
 
         String toSend = sanitize("\uD83D\uDCE5 **"+player.getName()+"** has joined the server!");
+        String avatar = String.format(avatarBase, player.getUniqueId().toString());
 
-        JSONObject obj = new JSONObject();
-        obj.put("content", toSend);
-        obj.put("username", player.getName());
-        obj.put("avatar_url", String.format(avatarBase, player.getUniqueId().toString()));
-
-        sendMessage(obj);
+        sendMessage(prepareJSON(toSend, player.getName(), avatar));
     }
 
     @EventHandler
@@ -106,13 +94,9 @@ public class MessageRelayer extends JavaPlugin implements Listener
             return;
 
         String toSend = sanitize("\uD83D\uDCE4 **"+player.getName()+"** has left the server!");
+        String avatar = String.format(avatarBase, player.getUniqueId().toString());
 
-        JSONObject obj = new JSONObject();
-        obj.put("content", toSend);
-        obj.put("username", player.getName());
-        obj.put("avatar_url", String.format(avatarBase, player.getUniqueId().toString()));
-
-        sendMessage(obj);
+        sendMessage(prepareJSON(toSend, player.getName(), avatar));
     }
 
     @EventHandler
@@ -122,13 +106,20 @@ public class MessageRelayer extends JavaPlugin implements Listener
         Player player = event.getEntity();
 
         String toSend = sanitize("\uD83D\uDC80 "+deathMsg);
+        String avatar = String.format(avatarBase, player.getUniqueId().toString());
 
+        sendMessage(prepareJSON(toSend, player.getName(), avatar));
+    }
+
+    private JSONObject prepareJSON(String content, String username, String avatar)
+    {
         JSONObject obj = new JSONObject();
-        obj.put("content", toSend);
-        obj.put("username", player.getName());
-        obj.put("avatar_url", String.format(avatarBase, player.getUniqueId().toString()));
 
-        sendMessage(obj);
+        obj.put("content", content);
+        obj.put("username", username);
+        obj.put("avatar_url", avatar);
+
+        return obj;
     }
 
     private boolean isVanished(Player player)

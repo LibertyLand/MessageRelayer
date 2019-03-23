@@ -44,6 +44,7 @@ public class MessageRelayer extends JavaPlugin implements Listener
     @Override
     public void onDisable()
     {
+        client.dispatcher().executorService().shutdown();
         LOG.info("MessageRelayer has been disabled");
     }
 
@@ -148,15 +149,23 @@ public class MessageRelayer extends JavaPlugin implements Listener
                 .post(body)
                 .build();
 
-        try
+        Call call = client.newCall(request);
+        call.enqueue(new Callback()
         {
-            Response response = client.newCall(request).execute();
-            response.close();
-        }
-        catch(IOException e)
-        {
-            LOG.severe("Could not make request to Discord! "+e.getMessage());
-            e.printStackTrace();
-        }
+            @Override
+            public void onResponse(Call call, Response response)
+            {
+                if(!(response.isSuccessful()))
+                    onFailure(call, new IOException("Could not send webhook message. HTTP code: " + response.code()));
+                response.close();
+            }
+
+            @Override
+            public void onFailure(Call call, IOException e)
+            {
+                getLogger().severe("Exception whilst sending a webhook message: ");
+                e.printStackTrace();
+            }
+        });
     }
 }

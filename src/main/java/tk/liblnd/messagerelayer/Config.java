@@ -1,12 +1,12 @@
 package tk.liblnd.messagerelayer;
 
+import org.bukkit.configuration.file.FileConfiguration;
+
 /**
  * @author Artuto
  */
 
-import org.bukkit.configuration.file.FileConfiguration;
-
-public class Config
+class Config
 {
     private final FileConfiguration config;
 
@@ -17,7 +17,7 @@ public class Config
         config.options().copyDefaults(true);
     }
 
-    public String getUrl()
+    String getUrl()
     {
         return config.getString("webhookUrl");
     }

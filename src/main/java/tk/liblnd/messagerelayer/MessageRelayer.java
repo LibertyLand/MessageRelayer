@@ -1,19 +1,8 @@
 package tk.liblnd.messagerelayer;
 
-import com.palmergames.bukkit.TownyChat.events.AsyncChatHookEvent;
-import de.myzelyam.api.vanish.PlayerHideEvent;
-import de.myzelyam.api.vanish.PlayerShowEvent;
 import okhttp3.*;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONObject;
@@ -21,12 +10,14 @@ import org.json.simple.JSONObject;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 
-public class MessageRelayer extends JavaPlugin implements Listener
+public class MessageRelayer extends JavaPlugin
 {
+    final String avatarBase = "https://crafatar.com/avatars/%s?overlay";
+    PluginListener pluginListener;
+
     private OkHttpClient client;
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    private final String avatarBase = "https://crafatar.com/avatars/%s?overlay";
     private Config config;
 
     @Override
@@ -37,7 +28,16 @@ public class MessageRelayer extends JavaPlugin implements Listener
         saveConfig();
 
         this.client = new OkHttpClient();
-        getServer().getPluginManager().registerEvents(this, this);
+
+        this.pluginListener = new PluginListener(this);
+        getServer().getPluginManager().registerEvents(pluginListener, this);
+
+        if(getServer().getPluginManager().isPluginEnabled("TownyChat"))
+            getServer().getPluginManager().registerEvents(new TownyListener(this), this);
+
+        if(getServer().getPluginManager().isPluginEnabled("PremiumVanish"))
+            getServer().getPluginManager().registerEvents(new VanishListener(this), this);
+
         getLogger().info(ChatColor.GREEN + "MessageRelayer has been enabled!");
     }
 
@@ -48,97 +48,7 @@ public class MessageRelayer extends JavaPlugin implements Listener
         getLogger().info("MessageRelayer has been disabled");
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onAsyncChatHook(AsyncChatHookEvent event)
-    {
-        Player player = event.getPlayer();
-        if(!(event.getChannel().getName().equals("general")))
-            return;
-
-        String toSend = sanitize(event.getMessage());
-        String avatar = String.format(avatarBase, player.getUniqueId().toString());
-
-        sendMessage(prepareJSON(toSend, player.getName(), avatar));
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onAsyncPlayerChat(AsyncPlayerChatEvent event)
-    {
-        Player player = event.getPlayer();
-        if(!(Bukkit.getPluginManager().getPlugin("TownyChat") == null))
-            return;
-
-        String toSend = sanitize(event.getMessage());
-        String avatar = String.format(avatarBase, player.getUniqueId().toString());
-
-        sendMessage(prepareJSON(toSend, player.getName(), avatar));
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlayerJoin(PlayerJoinEvent event)
-    {
-        Player player = event.getPlayer();
-        if(isVanished(player))
-            return;
-
-        String toSend = sanitize("\uD83D\uDCE5 **" + player.getName() + "** has joined the server!");
-        String avatar = String.format(avatarBase, player.getUniqueId().toString());
-
-        sendMessage(prepareJSON(toSend, player.getName(), avatar));
-    }
-
-    @EventHandler()
-    public void onPlayerQuit(PlayerQuitEvent event)
-    {
-        Player player = event.getPlayer();
-        if(isVanished(player))
-            return;
-
-        String toSend = sanitize("\uD83D\uDCE4 **" + player.getName() + "** has left the server!");
-        String avatar = String.format(avatarBase, player.getUniqueId().toString());
-
-        sendMessage(prepareJSON(toSend, player.getName(), avatar));
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlayerDeath(PlayerDeathEvent event)
-    {
-        String deathMsg = event.getDeathMessage();
-        Player player = event.getEntity();
-
-        String toSend = sanitize("\uD83D\uDC80 " + deathMsg);
-        String avatar = String.format(avatarBase, player.getUniqueId().toString());
-
-        sendMessage(prepareJSON(toSend, player.getName(), avatar));
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlayerHide(PlayerHideEvent event)
-    {
-        Player player = event.getPlayer();
-        if(isVanished(player))
-            return;
-
-        String toSend = sanitize("\uD83D\uDCE4 **" + player.getName() + "** has left the server!");
-        String avatar = String.format(avatarBase, player.getUniqueId().toString());
-
-        sendMessage(prepareJSON(toSend, player.getName(), avatar));
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlayerShow(PlayerShowEvent event)
-    {
-        Player player = event.getPlayer();
-        if(isVanished(player))
-            return;
-
-        String toSend = sanitize("\uD83D\uDCE5 **" + player.getName() + "** has joined the server!");
-        String avatar = String.format(avatarBase, player.getUniqueId().toString());
-
-        sendMessage(prepareJSON(toSend, player.getName(), avatar));
-    }
-
-    private JSONObject prepareJSON(String content, String username, String avatar)
+    JSONObject prepareJSON(String content, String username, String avatar)
     {
         JSONObject obj = new JSONObject();
 
@@ -149,7 +59,7 @@ public class MessageRelayer extends JavaPlugin implements Listener
         return obj;
     }
 
-    private boolean isVanished(Player player)
+    boolean isVanished(Player player)
     {
         for(MetadataValue meta : player.getMetadata("vanished"))
         {
@@ -160,13 +70,13 @@ public class MessageRelayer extends JavaPlugin implements Listener
         return false;
     }
 
-    private String sanitize(String msg)
+    String sanitize(String msg)
     {
         return ChatColor.stripColor(msg.replace("@everyone", "@\u0435veryone")
                 .replace("@here", "@h\u0435re")).trim();
     }
 
-    private void sendMessage(JSONObject json)
+    void sendMessage(JSONObject json)
     {
         if(config.getUrl().equals("https://canary.discordapp.com/api/webhooks"))
             return;
@@ -192,7 +102,7 @@ public class MessageRelayer extends JavaPlugin implements Listener
             @Override
             public void onFailure(@Nonnull Call call, IOException e)
             {
-                getLogger().severe("Exception whilst sending a webhook message:");
+                getLogger().severe("Exception whilst sending a webhook message: " + e);
                 e.printStackTrace();
             }
         });

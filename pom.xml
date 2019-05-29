@@ -6,7 +6,7 @@
 
     <groupId>tk.liblnd</groupId>
     <artifactId>messagerelayer</artifactId>
-    <version>1.6</version>
+    <version>2.0</version>
 
     <packaging>jar</packaging>
 
@@ -49,6 +49,7 @@
             <groupId>com.github.TownyAdvanced</groupId>
             <artifactId>TownyChat</artifactId>
             <version>01b01c8509</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- PremiumVanish -->
@@ -56,6 +57,7 @@
             <groupId>com.github.Artuto</groupId>
             <artifactId>PremiumVanishAPI</artifactId>
             <version>07fc6bacb6</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

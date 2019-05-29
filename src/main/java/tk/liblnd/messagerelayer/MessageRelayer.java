@@ -115,13 +115,27 @@ public class MessageRelayer extends JavaPlugin implements Listener
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerHide(PlayerHideEvent event)
     {
-        onPlayerQuit(new PlayerQuitEvent(event.getPlayer(), ""));
+        Player player = event.getPlayer();
+        if(isVanished(player))
+            return;
+
+        String toSend = sanitize("\uD83D\uDCE4 **" + player.getName() + "** has left the server!");
+        String avatar = String.format(avatarBase, player.getUniqueId().toString());
+
+        sendMessage(prepareJSON(toSend, player.getName(), avatar));
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerShow(PlayerShowEvent event)
     {
-        onPlayerJoin(new PlayerJoinEvent(event.getPlayer(), ""));
+        Player player = event.getPlayer();
+        if(isVanished(player))
+            return;
+
+        String toSend = sanitize("\uD83D\uDCE5 **" + player.getName() + "** has joined the server!");
+        String avatar = String.format(avatarBase, player.getUniqueId().toString());
+
+        sendMessage(prepareJSON(toSend, player.getName(), avatar));
     }
 
     private JSONObject prepareJSON(String content, String username, String avatar)

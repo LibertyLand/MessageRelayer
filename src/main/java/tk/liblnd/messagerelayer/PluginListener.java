@@ -62,6 +62,9 @@ public class PluginListener implements Listener
     public void onPlayerDeath(PlayerDeathEvent event)
     {
         String deathMsg = event.getDeathMessage();
+        if(deathMsg == null)
+            return;
+
         Player player = event.getEntity();
 
         String toSend = plugin.sanitize("\uD83D\uDC80 " + deathMsg);

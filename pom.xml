@@ -4,14 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>tk.liblnd</groupId>
+    <groupId>xyz.liblnd</groupId>
     <artifactId>messagerelayer</artifactId>
-    <version>2.1</version>
+    <version>2.2</version>
 
     <packaging>jar</packaging>
 
     <name>MessageRelayer</name>
-    <url>https://liblnd.tk</url>
+    <url>https://liblnd.xyz</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -33,7 +33,7 @@
         <dependency>
             <groupId>com.destroystokyo.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.13.2-R0.1-SNAPSHOT</version>
+            <version>1.14.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 

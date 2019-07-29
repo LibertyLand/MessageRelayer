@@ -1,4 +1,4 @@
-package tk.liblnd.messagerelayer;
+package xyz.liblnd.messagerelayer;
 
 import org.bukkit.configuration.file.FileConfiguration;
 

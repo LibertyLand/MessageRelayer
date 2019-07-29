@@ -1,4 +1,4 @@
-package tk.liblnd.messagerelayer;
+package xyz.liblnd.messagerelayer;
 
 import okhttp3.*;
 import org.bukkit.ChatColor;
@@ -13,7 +13,6 @@ import java.io.IOException;
 public class MessageRelayer extends JavaPlugin
 {
     final String avatarBase = "https://crafatar.com/avatars/%s?overlay";
-    PluginListener pluginListener;
 
     private OkHttpClient client;
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -29,8 +28,7 @@ public class MessageRelayer extends JavaPlugin
 
         this.client = new OkHttpClient();
 
-        this.pluginListener = new PluginListener(this);
-        getServer().getPluginManager().registerEvents(pluginListener, this);
+        getServer().getPluginManager().registerEvents(new PluginListener(this), this);
 
         if(getServer().getPluginManager().isPluginEnabled("TownyChat"))
             getServer().getPluginManager().registerEvents(new TownyListener(this), this);
@@ -48,6 +46,7 @@ public class MessageRelayer extends JavaPlugin
         getLogger().info("MessageRelayer has been disabled");
     }
 
+    @SuppressWarnings("unchecked")
     JSONObject prepareJSON(String content, String username, String avatar)
     {
         JSONObject obj = new JSONObject();
@@ -59,7 +58,7 @@ public class MessageRelayer extends JavaPlugin
         return obj;
     }
 
-    boolean isVanished(Player player)
+    private boolean isVanished(Player player)
     {
         for(MetadataValue meta : player.getMetadata("vanished"))
         {
@@ -106,5 +105,27 @@ public class MessageRelayer extends JavaPlugin
                 e.printStackTrace();
             }
         });
+    }
+
+    void handleJoin(Player player)
+    {
+        if(isVanished(player))
+            return;
+
+        String toSend = sanitize("\uD83D\uDCE5 **" + player.getName() + "** has joined the server!");
+        String avatar = String.format(avatarBase, player.getUniqueId().toString());
+
+        sendMessage(prepareJSON(toSend, player.getName(), avatar));
+    }
+
+    void handleLeave(Player player)
+    {
+        if(isVanished(player))
+            return;
+
+        String toSend = sanitize("\uD83D\uDCE4 **" + player.getName() + "** has left the server!");
+        String avatar = String.format(avatarBase, player.getUniqueId().toString());
+
+        sendMessage(prepareJSON(toSend, player.getName(), avatar));
     }
 }

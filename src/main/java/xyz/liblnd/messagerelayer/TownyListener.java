@@ -1,4 +1,4 @@
-package tk.liblnd.messagerelayer;
+package xyz.liblnd.messagerelayer;
 
 import com.palmergames.bukkit.TownyChat.events.AsyncChatHookEvent;
 import org.bukkit.entity.Player;

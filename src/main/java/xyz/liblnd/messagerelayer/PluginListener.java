@@ -1,4 +1,4 @@
-package tk.liblnd.messagerelayer;
+package xyz.liblnd.messagerelayer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -35,27 +35,13 @@ public class PluginListener implements Listener
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent event)
     {
-        Player player = event.getPlayer();
-        if(plugin.isVanished(player))
-            return;
-
-        String toSend = plugin.sanitize("\uD83D\uDCE5 **" + player.getName() + "** has joined the server!");
-        String avatar = String.format(plugin.avatarBase, player.getUniqueId().toString());
-
-        plugin.sendMessage(plugin.prepareJSON(toSend, player.getName(), avatar));
+        plugin.handleJoin(event.getPlayer());
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event)
     {
-        Player player = event.getPlayer();
-        if(plugin.isVanished(player))
-            return;
-
-        String toSend = plugin.sanitize("\uD83D\uDCE4 **" + player.getName() + "** has left the server!");
-        String avatar = String.format(plugin.avatarBase, player.getUniqueId().toString());
-
-        plugin.sendMessage(plugin.prepareJSON(toSend, player.getName(), avatar));
+        plugin.handleLeave(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

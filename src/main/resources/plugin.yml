@@ -1,7 +1,7 @@
 name: MessageRelayer
 version: ${project.version}
-api-version: 1.13
-main: tk.liblnd.messagerelayer.MessageRelayer
+api-version: 1.14
+main: xyz.liblnd.messagerelayer.MessageRelayer
 author: Artuto
-website: https://liblnd.tk
-softdepend: [TownyChat,PremiumVanish]
+website: https://liblnd.xyz
+softdepend: [TownyChat, PremiumVanish]

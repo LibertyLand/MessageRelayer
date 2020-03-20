@@ -1,61 +1,80 @@
 package xyz.liblnd.messagerelayer;
 
-import okhttp3.*;
+import club.minnced.discord.webhook.WebhookClient;
+import club.minnced.discord.webhook.WebhookClientBuilder;
+import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.json.simple.JSONObject;
-
-import javax.annotation.Nonnull;
-import java.io.IOException;
 
 public class MessageRelayer extends JavaPlugin
 {
-    final String avatarBase = "https://crafatar.com/avatars/%s?overlay";
-
-    private OkHttpClient client;
-    private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-
-    private Config config;
+    private WebhookClient client;
 
     @Override
     public void onEnable()
     {
         getLogger().info("Loading MessageRelayer...");
-        this.config = new Config(getConfig());
+        Config config = new Config(getConfig());
         saveConfig();
 
-        this.client = new OkHttpClient();
+        this.client = new WebhookClientBuilder(config.getUrl())
+                .setThreadFactory(job ->
+                {
+                    Thread thread = new Thread(job);
+                    thread.setName("MessageRelayer - Sending Thread");
+                    thread.setDaemon(true);
+                    return thread;
+                })
+                .setWait(false)
+                .build();
 
-        getServer().getPluginManager().registerEvents(new PluginListener(this), this);
+        PluginManager pluginManager = getServer().getPluginManager();
+        pluginManager.registerEvents(new PluginListener(this), this);
 
-        if(getServer().getPluginManager().isPluginEnabled("TownyChat"))
-            getServer().getPluginManager().registerEvents(new TownyListener(this), this);
+        if(pluginManager.isPluginEnabled("TownyChat"))
+            pluginManager.registerEvents(new TownyListener(this), this);
 
-        if(getServer().getPluginManager().isPluginEnabled("PremiumVanish"))
-            getServer().getPluginManager().registerEvents(new VanishListener(this), this);
+        if(pluginManager.isPluginEnabled("PremiumVanish"))
+            pluginManager.registerEvents(new VanishListener(this), this);
 
-        getLogger().info(ChatColor.GREEN + "MessageRelayer has been enabled!");
+        getLogger().info("MessageRelayer has been enabled!");
     }
 
     @Override
     public void onDisable()
     {
-        client.dispatcher().executorService().shutdown();
+        client.close();
         getLogger().info("MessageRelayer has been disabled");
     }
 
-    @SuppressWarnings("unchecked")
-    JSONObject prepareJSON(String content, String username, String avatar)
+    void sendMessage(Player player, String message)
     {
-        JSONObject obj = new JSONObject();
+        message = sanitize(message);
 
-        obj.put("content", content);
-        obj.put("username", username);
-        obj.put("avatar_url", avatar);
+        client.send(new WebhookMessageBuilder()
+                .setAvatarUrl(String.format("https://crafatar.com/avatars/%s?overlay", player.getUniqueId()))
+                .setUsername(player.getName())
+                .setContent(message)
+                .build());
+    }
 
-        return obj;
+    void handleJoin(Player player)
+    {
+        if(isVanished(player))
+            return;
+
+        sendMessage(player, "\uD83D\uDCE5 **" + player.getName() + "** has joined the server!");
+    }
+
+    void handleLeave(Player player)
+    {
+        if(isVanished(player))
+            return;
+
+        sendMessage(player, "\uD83D\uDCE4 **" + player.getName() + "** has left the server!");
     }
 
     private boolean isVanished(Player player)
@@ -69,63 +88,9 @@ public class MessageRelayer extends JavaPlugin
         return false;
     }
 
-    String sanitize(String msg)
+    private String sanitize(String msg)
     {
         return ChatColor.stripColor(msg.replace("@everyone", "@\u0435veryone")
                 .replace("@here", "@h\u0435re")).trim();
-    }
-
-    void sendMessage(JSONObject json)
-    {
-        if(config.getUrl().equals("https://canary.discordapp.com/api/webhooks"))
-            return;
-
-        RequestBody body = RequestBody.create(JSON, json.toString());
-        Request request = new Request.Builder()
-                .url(config.getUrl())
-                .post(body)
-                .build();
-
-        Call call = client.newCall(request);
-        call.enqueue(new Callback()
-        {
-            @Override
-            public void onResponse(@Nonnull Call call, @Nonnull Response response)
-            {
-                if(!(response.isSuccessful()))
-                    onFailure(call, new IOException("Could not send webhook message. HTTP code: " + response.code()));
-
-                response.close();
-            }
-
-            @Override
-            public void onFailure(@Nonnull Call call, IOException e)
-            {
-                getLogger().severe("Exception whilst sending a webhook message: " + e);
-                e.printStackTrace();
-            }
-        });
-    }
-
-    void handleJoin(Player player)
-    {
-        if(isVanished(player))
-            return;
-
-        String toSend = sanitize("\uD83D\uDCE5 **" + player.getName() + "** has joined the server!");
-        String avatar = String.format(avatarBase, player.getUniqueId().toString());
-
-        sendMessage(prepareJSON(toSend, player.getName(), avatar));
-    }
-
-    void handleLeave(Player player)
-    {
-        if(isVanished(player))
-            return;
-
-        String toSend = sanitize("\uD83D\uDCE4 **" + player.getName() + "** has left the server!");
-        String avatar = String.format(avatarBase, player.getUniqueId().toString());
-
-        sendMessage(prepareJSON(toSend, player.getName(), avatar));
     }
 }

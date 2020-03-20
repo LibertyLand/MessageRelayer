@@ -1,7 +1,6 @@
 package xyz.liblnd.messagerelayer;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -22,14 +21,10 @@ public class PluginListener implements Listener
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onAsyncPlayerChat(AsyncPlayerChatEvent event)
     {
-        Player player = event.getPlayer();
         if(!(Bukkit.getPluginManager().getPlugin("TownyChat") == null))
             return;
 
-        String toSend = plugin.sanitize(event.getMessage());
-        String avatar = String.format(plugin.avatarBase, player.getUniqueId().toString());
-
-        plugin.sendMessage(plugin.prepareJSON(toSend, player.getName(), avatar));
+        plugin.sendMessage(event.getPlayer(), event.getMessage());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -51,11 +46,6 @@ public class PluginListener implements Listener
         if(deathMsg == null)
             return;
 
-        Player player = event.getEntity();
-
-        String toSend = plugin.sanitize("\uD83D\uDC80 " + deathMsg);
-        String avatar = String.format(plugin.avatarBase, player.getUniqueId().toString());
-
-        plugin.sendMessage(plugin.prepareJSON(toSend, player.getName(), avatar));
+        plugin.sendMessage(event.getEntity(), "\uD83D\uDC80 " + deathMsg);
     }
 }

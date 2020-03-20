@@ -13,7 +13,7 @@ class Config
     Config(FileConfiguration config)
     {
         this.config = config;
-        config.addDefault("webhookUrl", "https://canary.discordapp.com/api/webhooks");
+        config.addDefault("webhookUrl", "https://discordapp.com/api/webhooks");
         config.options().copyDefaults(true);
     }
 

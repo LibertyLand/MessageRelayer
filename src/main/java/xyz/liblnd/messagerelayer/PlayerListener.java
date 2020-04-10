@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class PlayerListener implements Listener
 {
-    private MessageRelayer plugin;
+    private final MessageRelayer plugin;
 
     PlayerListener(MessageRelayer plugin)
     {

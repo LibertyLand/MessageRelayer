@@ -8,7 +8,7 @@ import org.bukkit.event.Listener;
 
 public class VanishListener implements Listener
 {
-    private MessageRelayer plugin;
+    private final MessageRelayer plugin;
 
     VanishListener(MessageRelayer plugin)
     {

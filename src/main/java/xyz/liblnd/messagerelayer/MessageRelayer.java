@@ -2,12 +2,15 @@ package xyz.liblnd.messagerelayer;
 
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
+import club.minnced.discord.webhook.receive.ReadonlyMessage;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.concurrent.CompletableFuture;
 
 public class MessageRelayer extends JavaPlugin
 {
@@ -33,6 +36,7 @@ public class MessageRelayer extends JavaPlugin
 
         PluginManager pluginManager = getServer().getPluginManager();
         pluginManager.registerEvents(new PlayerListener(this), this);
+        pluginManager.registerEvents(new ServerListener(this), this);
 
         if(pluginManager.isPluginEnabled("TownyChat"))
             pluginManager.registerEvents(new TownyListener(this), this);
@@ -46,8 +50,11 @@ public class MessageRelayer extends JavaPlugin
     @Override
     public void onDisable()
     {
-        client.close();
-        getLogger().info("MessageRelayer has been disabled");
+        sendMessage(null, "\uD83D\uDED1 Server has stopped").thenRun(() ->
+        {
+            client.close();
+            getLogger().info("MessageRelayer has been disabled");
+        });
     }
 
     boolean isVanished(Player player)
@@ -61,13 +68,13 @@ public class MessageRelayer extends JavaPlugin
         return false;
     }
 
-    void sendMessage(Player player, String message)
+    CompletableFuture<ReadonlyMessage> sendMessage(Player player, String message)
     {
         message = sanitize(message);
 
-        client.send(new WebhookMessageBuilder()
-                .setAvatarUrl(String.format("https://crafatar.com/avatars/%s?overlay", player.getUniqueId()))
-                .setUsername(player.getName())
+        return client.send(new WebhookMessageBuilder()
+                .setAvatarUrl(player == null ? null : String.format("https://crafatar.com/avatars/%s?overlay", player.getUniqueId()))
+                .setUsername(player == null ? null : player.getName())
                 .setContent(message)
                 .build());
     }

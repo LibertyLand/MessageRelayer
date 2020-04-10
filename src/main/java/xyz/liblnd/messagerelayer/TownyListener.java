@@ -7,7 +7,7 @@ import org.bukkit.event.Listener;
 
 public class TownyListener implements Listener
 {
-    private MessageRelayer plugin;
+    private final MessageRelayer plugin;
 
     TownyListener(MessageRelayer plugin)
     {

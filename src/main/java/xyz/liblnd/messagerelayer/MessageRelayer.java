@@ -32,7 +32,7 @@ public class MessageRelayer extends JavaPlugin
                 .build();
 
         PluginManager pluginManager = getServer().getPluginManager();
-        pluginManager.registerEvents(new PluginListener(this), this);
+        pluginManager.registerEvents(new PlayerListener(this), this);
 
         if(pluginManager.isPluginEnabled("TownyChat"))
             pluginManager.registerEvents(new TownyListener(this), this);
@@ -48,6 +48,17 @@ public class MessageRelayer extends JavaPlugin
     {
         client.close();
         getLogger().info("MessageRelayer has been disabled");
+    }
+
+    boolean isVanished(Player player)
+    {
+        for(MetadataValue meta : player.getMetadata("vanished"))
+        {
+            if(meta.asBoolean())
+                return true;
+        }
+
+        return false;
     }
 
     void sendMessage(Player player, String message)
@@ -75,17 +86,6 @@ public class MessageRelayer extends JavaPlugin
             return;
 
         sendMessage(player, "\uD83D\uDCE4 **" + player.getName() + "** has left the server!");
-    }
-
-    private boolean isVanished(Player player)
-    {
-        for(MetadataValue meta : player.getMetadata("vanished"))
-        {
-            if(meta.asBoolean())
-                return true;
-        }
-
-        return false;
     }
 
     private String sanitize(String msg)

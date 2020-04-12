@@ -37,7 +37,7 @@ public class PlayerListener implements Listener
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent event)
     {
-        plugin.handleJoin(event.getPlayer());
+        plugin.handleJoin(false, event.getPlayer());
     }
 
     @EventHandler

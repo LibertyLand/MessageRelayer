@@ -79,9 +79,9 @@ public class MessageRelayer extends JavaPlugin
                 .build());
     }
 
-    void handleJoin(Player player)
+    void handleJoin(boolean bypassVanishCheck, Player player)
     {
-        if(isVanished(player))
+        if(!(bypassVanishCheck) && isVanished(player))
             return;
 
         sendMessage(player, "\uD83D\uDCE5 **" + player.getName() + "** has joined the server!");

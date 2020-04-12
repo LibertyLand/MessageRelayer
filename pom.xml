@@ -90,6 +90,18 @@
 
                 <configuration>
                     <minimizeJar>true</minimizeJar>
+
+                    <relocations>
+                        <relocation>
+                            <pattern>club.minnced.discord.webhook</pattern>
+                            <shadedPattern>xyz.liblnd.messagerelayer.libs.discordwebhooks</shadedPattern>
+                        </relocation>
+
+                        <relocation>
+                            <pattern>com.squareup.okhttp3</pattern>
+                            <shadedPattern>xyz.liblnd.messagerelayer.libs.okhttp</shadedPattern>
+                        </relocation>
+                    </relocations>
                 </configuration>
 
                 <executions>

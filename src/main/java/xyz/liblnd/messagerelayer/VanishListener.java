@@ -18,12 +18,18 @@ public class VanishListener implements Listener
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerHide(PlayerHideEvent event)
     {
+        if(event.isSilent())
+            return;
+
         plugin.handleLeave(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerShow(PlayerShowEvent event)
     {
+        if(event.isSilent())
+            return;
+
         plugin.handleJoin(true, event.getPlayer());
     }
 }

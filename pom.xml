@@ -60,10 +60,11 @@
         </dependency>
 
         <!-- PremiumVanish -->
+        <!-- Install your plugin JAR locally; see https://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html -->
         <dependency>
-            <groupId>com.github.Artuto</groupId>
-            <artifactId>PremiumVanishAPI</artifactId>
-            <version>07fc6bacb6</version>
+            <groupId>xyz.artuto</groupId>
+            <artifactId>premiumvanish</artifactId>
+            <version>2.6.2</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
